@@ -7,9 +7,7 @@ import os
 from typing import (
     AsyncGenerator,
     List,
-    Optional,
-    Mapping,
-    Any
+    Optional
 )
 from mimetypes import guess_type
 
@@ -34,8 +32,8 @@ NOT_MODIFIED_HEADERS = (
 
 def _stat_to_etag(value: os.stat) -> str:
     key = f'{value.st_mtime}-{value.st_size}'.encode()
-    hash = hashlib.md5(key)
-    return hash.hexdigest()
+    hash_str = hashlib.md5(key)
+    return hash_str.hexdigest()
 
 
 def _find_header(headers: List[Header], tag: bytes) -> Optional[bytes]:
