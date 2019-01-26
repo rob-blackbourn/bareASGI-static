@@ -18,10 +18,8 @@ from bareasgi_static import file_response
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-
 async def http_request_callback(scope, info, matches, content):
-    return await file_response(scope, 200, os.path.join(here, 'example1.html'))
-
+    return await file_response(scope, 200, os.path.join(here, 'file_stream.html'))
 
 app = Application()
 app.http_router.add({'GET'}, '/example1', http_request_callback)
@@ -36,13 +34,12 @@ The next example serves files below a given directory.
 import os.path
 import uvicorn
 from bareasgi import Application
-from bareasgi_static import StaticFiles
+from bareasgi_static import add_static_file_provider
 
 here = os.path.abspath(os.path.dirname(__file__))
-static_files = StaticFiles(os.path.join(here, 'www'), index_filename='index.html')
 
 app = Application()
-app.http_router.add({'GET'}, '/{rest:path}', static_files)
+add_static_file_provider(app, os.path.join(here, simple_www), index_filename='index.html')
 
 uvicorn.run(app, port=9010)
 ```

@@ -14,7 +14,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 
 async def http_request_callback(scope: Scope, info: Info, matches: RouteMatches, content: Content) -> HttpResponse:
-    return await file_response(scope, 200, os.path.join(here, 'example1.html'))
+    return await file_response(scope, 200, os.path.join(here, 'file_stream.html'))
 
 
 app = Application()

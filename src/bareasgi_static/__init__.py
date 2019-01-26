@@ -1,10 +1,11 @@
 __version__ = '0.0.1'
 
-from .static_files import StaticFiles
+from .static_files_provider import StaticFilesProvider, add_static_file_provider
 from .file_streaming import file_response, file_writer
 
 __all__ = [
-    "StaticFiles",
+    "add_static_file_provider",
+    "StaticFilesProvider",
     "file_response",
     "file_writer"
 ]
