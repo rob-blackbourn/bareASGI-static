@@ -24,6 +24,15 @@ class StaticFilesProvider:
             check_source_folder: bool = True,
             index_filename: Optional[str] = None
     ) -> None:
+        """
+        A static file provider.
+
+        :param app: The bareASGI application.
+        :param source_folder: Where to find the files to serve.
+        :param mount_point: Where the files should appear on the url.
+        :param check_source_folder: If True check the source folder exists.
+        :param index_filename: An optional index file name.
+        """
         if check_source_folder and not os.path.isdir(source_folder):
             raise RuntimeError(f"Directory '{source_folder}' does not exist")
         self.source_folder = source_folder
@@ -80,6 +89,15 @@ def add_static_file_provider(
         check_source_folder: bool = True,
         index_filename: Optional[str] = None
 ) -> None:
+    """
+    Add static file support.
+
+    :param app: The bareASGI application.
+    :param source_folder: Where to find the files to serve.
+    :param mount_point: Where the files should appear on the url.
+    :param check_source_folder: If True check the source folder exists.
+    :param index_filename: An optional index file name.
+    """
     # The mount point must be absolute.
     if not mount_point.startswith('/') and mount_point.endswith('/'):
         raise RuntimeError('mount_point must start and end with "/"')

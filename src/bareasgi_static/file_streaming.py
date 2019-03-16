@@ -57,6 +57,13 @@ def _is_not_modified(request_headers: List[Header], response_headers: List[Heade
 
 
 async def file_writer(path: str, chunk_size: int = CHUNK_SIZE) -> AsyncGenerator[bytes, None]:
+    """
+    Creates an async generator to write a file.
+
+    :param path: The path of the file to write.
+    :param chunk_size: The size of each block.
+    :return: An async generator of bytes.
+    """
     async with aiofiles.open(path, mode="rb") as file:
         more_body = True
         while more_body:
@@ -74,6 +81,18 @@ async def file_response(
         filename: Optional[str] = None,
         check_modified: Optional[bool] = False
 ) -> HttpResponse:
+    """
+    A utility method to create a file response.
+
+    :param scope: The ASGI scope.
+    :param status: The HTTP status code.
+    :param path: The path to the file.
+    :param headers: The headers.
+    :param content_type: The content type.
+    :param filename: The filename.
+    :param check_modified: If True check for modifications to the file.
+    :return: An http response.
+    """
     try:
         stat_result = await aiofiles.os.stat(path)
         mode = stat_result.st_mode
