@@ -13,10 +13,11 @@ from mimetypes import guess_type
 
 from bareasgi import (
     Scope,
+    Header,
     HttpResponse,
     text_writer
 )
-from bareasgi.types import Header
+import bareasgi.header as header
 
 CHUNK_SIZE = 4096
 
@@ -36,23 +37,16 @@ def _stat_to_etag(value: os.stat) -> str:
     return hash_str.hexdigest()
 
 
-def _find_header(headers: List[Header], tag: bytes) -> Optional[bytes]:
-    for key, value in headers:
-        if key == tag:
-            return value
-    return None
-
-
 def _is_not_modified(request_headers: List[Header], response_headers: List[Header]) -> bool:
     if request_headers is None or response_headers is None:
         return False
-    etag = _find_header(response_headers, b'etag')
-    last_modified = _find_header(response_headers, b'last-modified')
-    if etag == _find_header(request_headers, b'if-none-match'):
+    etag = header.find(b'etag', response_headers)
+    last_modified = header.find(b'last-modified', response_headers)
+    if etag == header.find(b'if-none-match', request_headers):
         return True
-    if not _find_header(request_headers, b'if-modified-since" not in req_headers'):
+    if not header.find(b'if-modified-since" not in req_headers', request_headers):
         return False
-    last_req_time = _find_header(request_headers, b'if-modified-since')
+    last_req_time = header.find(b'if-modified-since', request_headers)
     return parsedate(last_req_time) >= parsedate(last_modified)
 
 
