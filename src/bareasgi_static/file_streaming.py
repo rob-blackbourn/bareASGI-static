@@ -44,7 +44,7 @@ def _is_not_modified(request_headers: List[Header], response_headers: List[Heade
     last_modified = header.find(b'last-modified', response_headers)
     if etag == header.find(b'if-none-match', request_headers):
         return True
-    if not header.find(b'if-modified-since" not in req_headers', request_headers):
+    if not header.find(b'if-modified-since', request_headers):
         return False
     last_req_time = header.find(b'if-modified-since', request_headers)
     return parsedate(last_req_time) >= parsedate(last_modified)
