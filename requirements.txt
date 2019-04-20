@@ -1,2 +1,2 @@
 aiofiles~=0.4
-bareasgi~=0.2
+bareasgi~=1.0
