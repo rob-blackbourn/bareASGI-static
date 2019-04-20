@@ -50,7 +50,7 @@ def _is_not_modified(request_headers: List[Header], response_headers: List[Heade
     last_modified = _find_header(response_headers, b'last-modified')
     if etag == _find_header(request_headers, b'if-none-match'):
         return True
-    if not _find_header(request_headers, b'if-modified-since" not in req_headers'):
+    if not _find_header(request_headers, b'if-modified-since'):
         return False
     last_req_time = _find_header(request_headers, b'if-modified-since')
     return parsedate(last_req_time) >= parsedate(last_modified)

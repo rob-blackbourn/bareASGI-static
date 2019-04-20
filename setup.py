@@ -24,6 +24,7 @@ setup(
     version=version,
     description='SStatic file support for bareasgi',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/rob-blackbourn/bareasgi-static',
     author='Rob Blackbourn',
     author_email='rob.blackbourn@googlemail.com',

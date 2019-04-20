@@ -27,9 +27,8 @@ class StaticFilesProvider:
         """
         A static file provider.
 
-        :param app: The bareASGI application.
         :param source_folder: Where to find the files to serve.
-        :param mount_point: Where the files should appear on the url.
+        :param path_variable: A path variable to capture the mount point.
         :param check_source_folder: If True check the source folder exists.
         :param index_filename: An optional index file name.
         """
@@ -44,41 +43,37 @@ class StaticFilesProvider:
         if scope["method"] not in ("GET", "HEAD"):
             return 405, [(b'content-type', b'text/plain')], text_writer("Method Not Allowed")
 
-        # Get the path from the scope or the route match.
-        path: str = '/' + matches.get(self.path_variable, '') if self.path_variable else scope["path"]
-        if (path == '' or path.endswith('/')) and self.index_filename:
-            path += self.index_filename
-
-        relative_path = os.path.normpath(os.path.join(*path.split("/")))
-        if relative_path.startswith(".."):
-            return 404, [(b'content-type', b'text/plain')], text_writer("Not Found")
-
-        rooted_path = os.path.join(self.source_folder, relative_path)
-
-        if self.config_checked:
-            check_directory = None
-        else:
-            check_directory = self.source_folder
-            self.config_checked = True
-
-        if check_directory is not None:
-            try:
-                stat_result = await aio_stat(check_directory)
-            except FileNotFoundError:
-                raise RuntimeError(f"directory '{check_directory}' does not exist.")
-            if not (stat.S_ISDIR(stat_result.st_mode) or stat.S_ISLNK(stat_result.st_mode)):
-                raise RuntimeError(f"path '{check_directory}' is not a directory.")
-
         try:
+            # Get the path from the scope or the route match.
+            path: str = '/' + matches.get(self.path_variable, '') if self.path_variable else scope["path"]
+            if (path == '' or path.endswith('/')) and self.index_filename:
+                path += self.index_filename
+
+            relative_path = os.path.normpath(os.path.join(*path.split("/")))
+            if relative_path.startswith(".."):
+                raise FileNotFoundError()
+
+            rooted_path = os.path.join(self.source_folder, relative_path)
+
+            if self.config_checked:
+                check_directory = None
+            else:
+                check_directory = self.source_folder
+                self.config_checked = True
+
+            if check_directory is not None:
+                stat_result = await aio_stat(check_directory)
+                if not (stat.S_ISDIR(stat_result.st_mode) or stat.S_ISLNK(stat_result.st_mode)):
+                    raise FileNotFoundError()
+
             stat_result = await aio_stat(rooted_path)
-        except FileNotFoundError:
-            return 404, [(b'content-type', b'text/plain')], text_writer("Not Found")
-        else:
             mode = stat_result.st_mode
             if not stat.S_ISREG(mode):
-                return 404, [(b'content-type', b'text/plain')], text_writer("Not Found")
-            else:
-                return await file_response(scope, 200, rooted_path, check_modified=True)
+                raise FileNotFoundError()
+
+            return await file_response(scope, 200, rooted_path, check_modified=True)
+        except FileNotFoundError:
+            return 404, [(b'content-type', b'text/plain')], text_writer("Not Found")
 
 
 def add_static_file_provider(
