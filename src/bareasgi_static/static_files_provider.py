@@ -2,15 +2,15 @@ import os
 import stat
 from typing import Optional
 from aiofiles.os import stat as aio_stat
-from bareasgi import (
-    Application,
+from bareasgi import Application
+from baretypes import (
     Scope,
     Info,
     RouteMatches,
     Content,
-    HttpResponse,
-    text_writer
+    HttpResponse
 )
+from bareutils import text_writer
 from bareasgi_static.file_streaming import file_response
 
 
@@ -38,6 +38,7 @@ class StaticFilesProvider:
         self.path_variable = path_variable
         self.config_checked = False
         self.index_filename = index_filename
+
 
     async def __call__(self, scope: Scope, info: Info, matches: RouteMatches, content: Content) -> HttpResponse:
         if scope["method"] not in ("GET", "HEAD"):

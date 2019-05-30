@@ -11,13 +11,13 @@ from typing import (
 )
 from mimetypes import guess_type
 
-from bareasgi import (
+from baretypes import (
     Scope,
     Header,
-    HttpResponse,
-    text_writer
+    HttpResponse
 )
-import bareasgi.header as header
+from bareutils import text_writer
+import bareutils.header as header
 
 CHUNK_SIZE = 4096
 

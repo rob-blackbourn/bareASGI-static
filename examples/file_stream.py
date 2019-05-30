@@ -1,7 +1,7 @@
 import uvicorn
 import os.path
-from bareasgi import (
-    Application,
+from bareasgi import Application
+from baretypes import (
     Scope,
     Info,
     RouteMatches,
