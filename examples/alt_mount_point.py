@@ -33,7 +33,7 @@ async def set_info(scope: Scope, info: Info, matches: RouteMatches, content: Con
     text = await text_reader(content)
     data = json.loads(text)
     info.update(data)
-    return 204, None, None
+    return 204
 
 
 app = Application(info={'name': 'Michael Caine'})

@@ -5,7 +5,6 @@ import hashlib
 import stat
 import os
 from typing import (
-    AsyncGenerator,
     List,
     Optional
 )
@@ -14,6 +13,8 @@ from mimetypes import guess_type
 from baretypes import (
     Scope,
     Header,
+    Headers,
+    Content,
     HttpResponse
 )
 from bareutils import text_writer
@@ -37,7 +38,7 @@ def _stat_to_etag(value: os.stat) -> str:
     return hash_str.hexdigest()
 
 
-def _is_not_modified(request_headers: List[Header], response_headers: List[Header]) -> bool:
+def _is_not_modified(request_headers: List[Header], response_headers: Headers) -> bool:
     if request_headers is None or response_headers is None:
         return False
     etag = header.find(b'etag', response_headers)
@@ -50,7 +51,7 @@ def _is_not_modified(request_headers: List[Header], response_headers: List[Heade
     return parsedate(last_req_time) >= parsedate(last_modified)
 
 
-async def file_writer(path: str, chunk_size: int = CHUNK_SIZE) -> AsyncGenerator[bytes, None]:
+async def file_writer(path: str, chunk_size: int = CHUNK_SIZE) -> Content:
     """
     Creates an async generator to write a file.
 
@@ -70,7 +71,7 @@ async def file_response(
         scope: Scope,
         status: int,
         path: str,
-        headers: Optional[List[Header]] = None,
+        headers: Optional[Headers] = None,
         content_type: Optional[str] = None,
         filename: Optional[str] = None,
         check_modified: Optional[bool] = False
@@ -116,4 +117,4 @@ async def file_response(
     except FileNotFoundError:
         return 500, [(b'content-type', b'text/plain')], text_writer(f"File at path {path} does not exist.")
     except RuntimeError:
-        return 500, None, None
+        return 500
