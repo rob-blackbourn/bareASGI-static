@@ -19,7 +19,7 @@ __version__ = "3.0.0"
 setup(
     name='bareasgi_static',
     version=__version__,
-    description='SStatic file support for bareasgi',
+    description='Static file support for bareasgi',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/rob-blackbourn/bareasgi-static',
