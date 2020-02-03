@@ -1,6 +1,6 @@
 # bareasgi-static
 
-Static file support for [bareASGI](http://github.com/rob-blackbourn/bareasgi) (read the [documentation](https://bareasgi-static.readthedocs.io/en/latest/))
+Static file support for [bareASGI](http://github.com/rob-blackbourn/bareasgi) (read the [documentation](https://rob-blackbourn.github.io/bareASGI-static/))
 
 ## Overview
 
