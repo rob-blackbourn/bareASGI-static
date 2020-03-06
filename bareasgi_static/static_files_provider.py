@@ -1,3 +1,5 @@
+"""Static Files Provider"""
+
 import os
 import stat
 from typing import Optional
@@ -15,6 +17,7 @@ from bareasgi_static.file_streaming import file_response
 
 
 class StaticFilesProvider:
+    """Static files provider"""
 
     def __init__(
             self,
@@ -24,13 +27,19 @@ class StaticFilesProvider:
             check_source_folder: bool = True,
             index_filename: Optional[str] = None
     ) -> None:
-        """
-        A static file provider.
-
-        :param source_folder: Where to find the files to serve.
-        :param path_variable: A path variable to capture the mount point.
-        :param check_source_folder: If True check the source folder exists.
-        :param index_filename: An optional index file name.
+        """A static file provider.
+        
+        Args:
+            source_folder (str): Where to find the files to serve.
+            path_variable (Optional[str], optional): A path variable to capture
+                the mount point. Defaults to None.
+            check_source_folder (bool, optional): If True check the source
+                folder exists. Defaults to True.
+            index_filename (Optional[str], optional): An optional index file
+                name. Defaults to None.
+        
+        Raises:
+            RuntimeError: If the source folder does not exist.
         """
         if check_source_folder and not os.path.isdir(source_folder):
             raise RuntimeError(f"Directory '{source_folder}' does not exist")
@@ -85,14 +94,20 @@ def add_static_file_provider(
         check_source_folder: bool = True,
         index_filename: Optional[str] = None
 ) -> None:
-    """
-    Add static file support.
-
-    :param app: The bareASGI application.
-    :param source_folder: Where to find the files to serve.
-    :param mount_point: Where the files should appear on the url.
-    :param check_source_folder: If True check the source folder exists.
-    :param index_filename: An optional index file name.
+    """Add static file support.
+    
+    Args:
+        app (Application): The bareASGI application.
+        source_folder (str): Where to find the files to serve.
+        mount_point (str, optional): Where the files should appear on the url.
+            Defaults to '/'.
+        check_source_folder (bool, optional): If True check the source folder
+            exists. Defaults to True.
+        index_filename (Optional[str], optional): An optional index file name.
+            Defaults to None.
+    
+    Raises:
+        RuntimeError: If the mount point doesn't start with '/'.
     """
     # The mount point must be absolute.
     if not mount_point.startswith('/') and mount_point.endswith('/'):
