@@ -28,7 +28,7 @@ class StaticFilesProvider:
             index_filename: Optional[str] = None
     ) -> None:
         """A static file provider.
-        
+
         Args:
             source_folder (str): Where to find the files to serve.
             path_variable (Optional[str], optional): A path variable to capture
@@ -37,7 +37,7 @@ class StaticFilesProvider:
                 folder exists. Defaults to True.
             index_filename (Optional[str], optional): An optional index file
                 name. Defaults to None.
-        
+
         Raises:
             RuntimeError: If the source folder does not exist.
         """
@@ -48,14 +48,25 @@ class StaticFilesProvider:
         self.config_checked = False
         self.index_filename = index_filename
 
-
-    async def __call__(self, scope: Scope, info: Info, matches: RouteMatches, content: Content) -> HttpResponse:
+    async def __call__(
+            self,
+            scope: Scope,
+            info: Info,
+            matches: RouteMatches,
+            content: Content
+    ) -> HttpResponse:
         if scope["method"] not in ("GET", "HEAD"):
-            return 405, [(b'content-type', b'text/plain')], text_writer("Method Not Allowed")
+            return (
+                405,
+                [(b'content-type', b'text/plain')],
+                text_writer("Method Not Allowed")
+            )
 
         try:
             # Get the path from the scope or the route match.
-            path: str = '/' + matches.get(self.path_variable, '') if self.path_variable else scope["path"]
+            path: str = '/' + \
+                matches.get(self.path_variable,
+                            '') if self.path_variable else scope["path"]
             if (path == '' or path.endswith('/')) and self.index_filename:
                 path += self.index_filename
 
@@ -95,7 +106,7 @@ def add_static_file_provider(
         index_filename: Optional[str] = None
 ) -> None:
     """Add static file support.
-    
+
     Args:
         app (Application): The bareASGI application.
         source_folder (str): Where to find the files to serve.
@@ -105,7 +116,7 @@ def add_static_file_provider(
             exists. Defaults to True.
         index_filename (Optional[str], optional): An optional index file name.
             Defaults to None.
-    
+
     Raises:
         RuntimeError: If the mount point doesn't start with '/'.
     """

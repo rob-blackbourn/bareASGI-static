@@ -1,16 +1,19 @@
 """File streaming"""
 
-import aiofiles
-import aiofiles.os
 from email.utils import formatdate, parsedate
 import hashlib
 import stat
 import os
+from time import mktime, struct_time
 from typing import (
     List,
-    Optional
+    Optional,
+    cast
 )
 from mimetypes import guess_type
+
+import aiofiles
+import aiofiles.os
 
 from baretypes import (
     Scope,
@@ -34,13 +37,16 @@ NOT_MODIFIED_HEADERS = (
 )
 
 
-def _stat_to_etag(value: os.stat) -> str:
+def _stat_to_etag(value: os.stat_result) -> str:
     key = f'{value.st_mtime}-{value.st_size}'.encode()
     hash_str = hashlib.md5(key)
     return hash_str.hexdigest()
 
 
-def _is_not_modified(request_headers: List[Header], response_headers: Headers) -> bool:
+def _is_not_modified(
+        request_headers: List[Header],
+        response_headers: Headers
+) -> bool:
     if request_headers is None or response_headers is None:
         return False
     etag = header.find(b'etag', response_headers)
@@ -50,19 +56,22 @@ def _is_not_modified(request_headers: List[Header], response_headers: Headers) -
     if not header.find(b'if-modified-since', request_headers):
         return False
     last_req_time = header.find(b'if-modified-since', request_headers)
-    return parsedate(last_req_time) >= parsedate(last_modified)
+    last_req = cast(struct_time, parsedate(last_req_time.decode()))
+    last_modified = cast(struct_time, parsedate(last_modified.decode()))
+    return mktime(last_req) >= mktime(last_modified)
 
 
 async def file_writer(path: str, chunk_size: int = CHUNK_SIZE) -> Content:
     """Creates an async iterator to write a file.
-    
+
     Args:
         path (str): The path of the file to write.
-        chunk_size (int, optional): The size of each block. Defaults to CHUNK_SIZE.
-    
+        chunk_size (int, optional): The size of each block. Defaults to
+            CHUNK_SIZE.
+
     Returns:
         Content: An async iterator of bytes.
-    
+
     Yields:
         Content: The bytes in chunks.
     """
@@ -84,19 +93,21 @@ async def file_response(
         check_modified: Optional[bool] = False
 ) -> HttpResponse:
     """A utility method to create a file response.
-    
+
     Args:
         scope (Scope): The ASGI scope.
         status (int): The HTTP status code.
         path (str): The path to the file.
         headers (Optional[Headers], optional): The headers. Defaults to None.
-        content_type (Optional[str], optional): The content type.. Defaults to None.
+        content_type (Optional[str], optional): The content type.. Defaults to
+            None.
         filename (Optional[str], optional): The filename. Defaults to None.
-        check_modified (Optional[bool], optional): If True check for modifications to the file. Defaults to False.
-    
+        check_modified (Optional[bool], optional): If True check for
+            modifications to the file. Defaults to False.
+
     Raises:
         RuntimeError: If the path was not a file.
-    
+
     Returns:
         HttpResponse: The HTTP response
     """
@@ -114,19 +125,40 @@ async def file_response(
         headers.append((b'content-type', content_type.encode()))
 
         headers.append((b'content-length', str(stat_result.st_size).encode()))
-        headers.append((b'last-modified', formatdate(stat_result.st_mtime, usegmt=True).encode()))
+        headers.append(
+            (
+                b'last-modified',
+                formatdate(stat_result.st_mtime, usegmt=True).encode()
+            )
+        )
         headers.append((b'etag', _stat_to_etag(stat_result).encode()))
 
         if filename is not None:
             content_disposition = f'attachment; filename="{filename}"'
-            headers.append((b"content-disposition", content_disposition.encode()))
+            headers.append(
+                (b"content-disposition", content_disposition.encode()))
 
         if check_modified and _is_not_modified(scope['headers'], headers):
-            return 304, [(name, value) for name, value in headers if name in NOT_MODIFIED_HEADERS], None
+            return (
+                304,
+                [
+                    (name, value)
+                    for name, value in headers if name in NOT_MODIFIED_HEADERS
+                ],
+                None
+            )
 
-        return status, headers, None if scope['method'] == 'HEAD' else file_writer(path)
+        return (
+            status,
+            headers,
+            None if scope['method'] == 'HEAD' else file_writer(path)
+        )
 
     except FileNotFoundError:
-        return 500, [(b'content-type', b'text/plain')], text_writer(f"File at path {path} does not exist.")
+        return (
+            500,
+            [(b'content-type', b'text/plain')],
+            text_writer(f"File at path {path} does not exist.")
+        )
     except RuntimeError:
         return 500
