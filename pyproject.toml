@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bareASGI-static"
-version = "3.0.1"
+version = "3.0.2"
 description = "Static file support for bareASGI"
 authors = ["Rob Blackbourn <rob.blackbourn@gmail.com>"]
 license = "Apache-2.0"
@@ -12,10 +12,8 @@ repository = "https://github.com/rob-blackbourn/bareASGI-static"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-aiofiles = "^0.4"
-baretypes = "^3.0.5"
-bareutils = "^3.1"
-bareASGI = "^3.0"
+aiofiles = "^0.6"
+bareASGI = "^3.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.0"
