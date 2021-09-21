@@ -6,6 +6,10 @@ Static file support for [bareASGI](http://github.com/rob-blackbourn/bareasgi) (r
 
 This package provides support for serving static files to bareasgi.
 
+## Branch
+
+This is the v3 maintenance branch.
+
 ## Usage
 
 The following example serves a single file.
