@@ -6,8 +6,10 @@ import stat
 import os
 from time import mktime, struct_time
 from typing import (
+    AsyncIterable,
     List,
     Optional,
+    Tuple,
     cast
 )
 from mimetypes import guess_type
@@ -15,15 +17,8 @@ from mimetypes import guess_type
 import aiofiles
 import aiofiles.os
 
-from baretypes import (
-    Scope,
-    Header,
-    Headers,
-    Content,
-    HttpResponse
-)
-from bareutils import text_writer
-import bareutils.header as header
+from bareasgi import Scope, HttpResponse
+from bareutils import text_writer, header, response_code
 
 CHUNK_SIZE = 4096
 
@@ -44,24 +39,29 @@ def _stat_to_etag(value: os.stat_result) -> str:
 
 
 def _is_not_modified(
-        request_headers: List[Header],
-        response_headers: Headers
+        request_headers: List[Tuple[bytes, bytes]],
+        response_headers: List[Tuple[bytes, bytes]]
 ) -> bool:
     if request_headers is None or response_headers is None:
         return False
     etag = header.find(b'etag', response_headers)
     last_modified = header.find(b'last-modified', response_headers)
+    assert last_modified is not None
     if etag == header.find(b'if-none-match', request_headers):
         return True
     if not header.find(b'if-modified-since', request_headers):
         return False
     last_req_time = header.find(b'if-modified-since', request_headers)
+    assert last_req_time is not None
     last_req = cast(struct_time, parsedate(last_req_time.decode()))
-    last_modified = cast(struct_time, parsedate(last_modified.decode()))
-    return mktime(last_req) >= mktime(last_modified)
+    last_modified_struct_time = cast(
+        struct_time,
+        parsedate(last_modified.decode())
+    )
+    return mktime(last_req) >= mktime(last_modified_struct_time)
 
 
-async def file_writer(path: str, chunk_size: int = CHUNK_SIZE) -> Content:
+async def file_writer(path: str, chunk_size: int = CHUNK_SIZE) -> AsyncIterable[bytes]:
     """Creates an async iterator to write a file.
 
     Args:
@@ -87,7 +87,7 @@ async def file_response(
         scope: Scope,
         status: int,
         path: str,
-        headers: Optional[Headers] = None,
+        headers: Optional[List[Tuple[bytes, bytes]]] = None,
         content_type: Optional[str] = None,
         filename: Optional[str] = None,
         check_modified: Optional[bool] = False
@@ -139,8 +139,8 @@ async def file_response(
                 (b"content-disposition", content_disposition.encode()))
 
         if check_modified and _is_not_modified(scope['headers'], headers):
-            return (
-                304,
+            return HttpResponse(
+                response_code.NOT_MODIFIED,
                 [
                     (name, value)
                     for name, value in headers if name in NOT_MODIFIED_HEADERS
@@ -148,17 +148,17 @@ async def file_response(
                 None
             )
 
-        return (
+        return HttpResponse(
             status,
             headers,
             None if scope['method'] == 'HEAD' else file_writer(path)
         )
 
     except FileNotFoundError:
-        return (
-            500,
+        return HttpResponse(
+            response_code.INTERNAL_SERVER_ERROR,
             [(b'content-type', b'text/plain')],
             text_writer(f"File at path {path} does not exist.")
         )
     except RuntimeError:
-        return 500
+        return HttpResponse(response_code.INTERNAL_SERVER_ERROR)

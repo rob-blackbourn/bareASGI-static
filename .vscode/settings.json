@@ -9,8 +9,12 @@
     },
     "cSpell.words": [
         "aiofiles",
+        "ASGI",
         "bareasgi",
         "bareutils",
-        "mkdocs"
+        "ISREG",
+        "mkdocs",
+        "mktime",
+        "struct"
     ]
 }

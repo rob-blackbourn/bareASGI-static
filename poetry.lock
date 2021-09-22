@@ -1,10 +1,10 @@
 [[package]]
 name = "aiofiles"
-version = "0.6.0"
+version = "0.7.0"
 description = "File support for asyncio."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "astroid"
@@ -56,34 +56,22 @@ toml = "*"
 
 [[package]]
 name = "bareasgi"
-version = "3.7.1"
+version = "4.0.0a1"
 description = "A lightweight ASGI framework"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-baretypes = ">=3.6,<4.0"
-bareutils = ">=3.6,<4.0"
-
-[[package]]
-name = "baretypes"
-version = "3.6.4"
-description = "Types for bareASGI and bareClient"
-category = "main"
-optional = false
-python-versions = ">=3.7,<4.0"
+bareutils = ">=4.0.0-alpha.0,<5.0.0"
 
 [[package]]
 name = "bareutils"
-version = "3.7.0"
+version = "4.0.0a0"
 description = "Utilities for bareASGI and bareClient"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
-
-[package.dependencies]
-baretypes = ">=3,<4"
 
 [[package]]
 name = "click"
@@ -595,6 +583,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "types-aiofiles"
+version = "0.1.9"
+description = "Typing stubs for aiofiles"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "3.10.0.2"
 description = "Backported and Experimental Type Hints for Python 3.5+"
@@ -679,12 +675,12 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "6692516eba8ccb73586a66e2c8bb6fc3018b6ca402f7d9ad4e63c7069a64aded"
+content-hash = "f68bd08d28703bb611d254ed5c40cc5150c0d2e30a9ea29ac64d4b63b9969019"
 
 [metadata.files]
 aiofiles = [
-    {file = "aiofiles-0.6.0-py3-none-any.whl", hash = "sha256:bd3019af67f83b739f8e4053c6c0512a7f545b9a8d91aaeab55e6e0f9d123c27"},
-    {file = "aiofiles-0.6.0.tar.gz", hash = "sha256:e0281b157d3d5d59d803e3f4557dcc9a3dff28a4dd4829a9ff478adae50ca092"},
+    {file = "aiofiles-0.7.0-py3-none-any.whl", hash = "sha256:c67a6823b5f23fcab0a2595a289cec7d8c863ffcb4322fb8cd6b90400aedfdbc"},
+    {file = "aiofiles-0.7.0.tar.gz", hash = "sha256:a1c4fc9b2ff81568c83e21392a82f344ea9d23da906e4f6a52662764545e19d4"},
 ]
 astroid = [
     {file = "astroid-2.8.0-py3-none-any.whl", hash = "sha256:dcc06f6165f415220013801642bd6c9808a02967070919c4b746c6864c205471"},
@@ -703,16 +699,12 @@ autopep8 = [
     {file = "autopep8-1.5.7.tar.gz", hash = "sha256:276ced7e9e3cb22e5d7c14748384a5cf5d9002257c0ed50c0e075b68011bb6d0"},
 ]
 bareasgi = [
-    {file = "bareasgi-3.7.1-py3-none-any.whl", hash = "sha256:9849f6b621d5932755d1631eedd22d06d52bbb18f1ad3f434fb66bf6479e1ffc"},
-    {file = "bareasgi-3.7.1.tar.gz", hash = "sha256:ecea6517edb936dfeaf06871766f259efd82dd52300fca6aeb4ba5d32b8f1ca5"},
-]
-baretypes = [
-    {file = "baretypes-3.6.4-py3-none-any.whl", hash = "sha256:563ebee21a2942f9fff6a7208a194fb3b6a68de86dff5dc31b144003badccc8d"},
-    {file = "baretypes-3.6.4.tar.gz", hash = "sha256:66339cbc1ce1fcae37848a56132a3929da93ba14530fe5fa3c3a1ca8da8ce04d"},
+    {file = "bareasgi-4.0.0a1-py3-none-any.whl", hash = "sha256:8b66bafbfa65fc3c7346148e4d8da778578fefac6c408b5c774d2cdfa83d2884"},
+    {file = "bareasgi-4.0.0a1.tar.gz", hash = "sha256:f43e9203eb23cd77c34aed8f999bfacf59f2f5c91aa59d0055f9689534cfdd01"},
 ]
 bareutils = [
-    {file = "bareutils-3.7.0-py3-none-any.whl", hash = "sha256:d0859d047035a02aa039193cf6ba86b9f8cc241d6fa1629fc483a422729d08d8"},
-    {file = "bareutils-3.7.0.tar.gz", hash = "sha256:c1ed0f2239eff3e0eb6053ca96a71be157c54266acb35e06173344e19e70fc9c"},
+    {file = "bareutils-4.0.0a0-py3-none-any.whl", hash = "sha256:1911042d030802965802b07f12f1142e60cf409b08310bb4819f276c77e463a4"},
+    {file = "bareutils-4.0.0a0.tar.gz", hash = "sha256:3fdc31f5be980a567c24c951b65122b7e695899f5724e0a99be7b182a0860beb"},
 ]
 click = [
     {file = "click-8.0.1-py3-none-any.whl", hash = "sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6"},
@@ -1035,6 +1027,10 @@ typed-ast = [
     {file = "typed_ast-1.4.3-cp39-cp39-win32.whl", hash = "sha256:209596a4ec71d990d71d5e0d312ac935d86930e6eecff6ccc7007fe54d703808"},
     {file = "typed_ast-1.4.3-cp39-cp39-win_amd64.whl", hash = "sha256:9c6d1a54552b5330bc657b7ef0eae25d00ba7ffe85d9ea8ae6540d2197a3788c"},
     {file = "typed_ast-1.4.3.tar.gz", hash = "sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65"},
+]
+types-aiofiles = [
+    {file = "types-aiofiles-0.1.9.tar.gz", hash = "sha256:3ccfe55e17a97143c7a3730ed52b24385171212d4bc76c63c867c437512ef55e"},
+    {file = "types_aiofiles-0.1.9-py3-none-any.whl", hash = "sha256:36b806484b4ce1d29327157ba46e4c901cddef522cce6516d229c1f5b54c1ff0"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
