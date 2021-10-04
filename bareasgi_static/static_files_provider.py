@@ -3,17 +3,12 @@
 import os
 import stat
 from typing import Optional
+
 from aiofiles.os import stat as aio_stat
-from bareasgi import Application
-from baretypes import (
-    Scope,
-    Info,
-    RouteMatches,
-    Content,
-    HttpResponse
-)
-from bareutils import text_writer
-from bareasgi_static.file_streaming import file_response
+from bareasgi import Application, HttpRequest, HttpResponse
+from bareutils import text_writer, response_code
+
+from .file_streaming import file_response
 
 
 class StaticFilesProvider:
@@ -48,16 +43,10 @@ class StaticFilesProvider:
         self.config_checked = False
         self.index_filename = index_filename
 
-    async def __call__(
-            self,
-            scope: Scope,
-            info: Info,
-            matches: RouteMatches,
-            content: Content
-    ) -> HttpResponse:
-        if scope["method"] not in ("GET", "HEAD"):
-            return (
-                405,
+    async def __call__(self, request: HttpRequest) -> HttpResponse:
+        if request.scope["method"] not in ("GET", "HEAD"):
+            return HttpResponse(
+                response_code.METHOD_NOT_ALLOWED,
                 [(b'content-type', b'text/plain')],
                 text_writer("Method Not Allowed")
             )
@@ -65,8 +54,9 @@ class StaticFilesProvider:
         try:
             # Get the path from the scope or the route match.
             path: str = '/' + \
-                matches.get(self.path_variable,
-                            '') if self.path_variable else scope["path"]
+                request.matches.get(
+                    self.path_variable,
+                    '') if self.path_variable else request.scope["path"]
             if (path == '' or path.endswith('/')) and self.index_filename:
                 path += self.index_filename
 
@@ -92,9 +82,13 @@ class StaticFilesProvider:
             if not stat.S_ISREG(mode):
                 raise FileNotFoundError()
 
-            return await file_response(scope, 200, rooted_path, check_modified=True)
+            return await file_response(request, 200, rooted_path, check_modified=True)
         except FileNotFoundError:
-            return 404, [(b'content-type', b'text/plain')], text_writer("Not Found")
+            return HttpResponse(
+                response_code.NOT_FOUND,
+                [(b'content-type', b'text/plain')],
+                text_writer("Not Found")
+            )
 
 
 def add_static_file_provider(

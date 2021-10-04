@@ -18,8 +18,8 @@ from bareasgi_static import file_response
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-async def http_request_callback(scope, info, matches, content):
-    return await file_response(scope, 200, os.path.join(here, 'file_stream.html'))
+async def http_request_callback(request):
+    return await file_response(request, 200, os.path.join(here, 'file_stream.html'))
 
 app = Application()
 app.http_router.add({'GET'}, '/example1', http_request_callback)
