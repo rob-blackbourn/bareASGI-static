@@ -82,7 +82,7 @@ class StaticFilesProvider:
             if not stat.S_ISREG(mode):
                 raise FileNotFoundError()
 
-            return await file_response(request.scope, 200, rooted_path, check_modified=True)
+            return await file_response(request, 200, rooted_path, check_modified=True)
         except FileNotFoundError:
             return HttpResponse(
                 response_code.NOT_FOUND,

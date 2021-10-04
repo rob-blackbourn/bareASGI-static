@@ -7,6 +7,7 @@ import os
 from time import mktime, struct_time
 from typing import (
     AsyncIterable,
+    Iterable,
     List,
     Optional,
     Tuple,
@@ -17,7 +18,7 @@ from mimetypes import guess_type
 import aiofiles
 import aiofiles.os
 
-from bareasgi import Scope, HttpResponse
+from bareasgi import HttpRequest, HttpResponse
 from bareutils import text_writer, header, response_code
 
 CHUNK_SIZE = 4096
@@ -39,8 +40,8 @@ def _stat_to_etag(value: os.stat_result) -> str:
 
 
 def _is_not_modified(
-        request_headers: List[Tuple[bytes, bytes]],
-        response_headers: List[Tuple[bytes, bytes]]
+        request_headers: Iterable[Tuple[bytes, bytes]],
+        response_headers: Iterable[Tuple[bytes, bytes]]
 ) -> bool:
     if request_headers is None or response_headers is None:
         return False
@@ -84,7 +85,7 @@ async def file_writer(path: str, chunk_size: int = CHUNK_SIZE) -> AsyncIterable[
 
 
 async def file_response(
-        scope: Scope,
+        request: HttpRequest,
         status: int,
         path: str,
         headers: Optional[List[Tuple[bytes, bytes]]] = None,
@@ -138,7 +139,7 @@ async def file_response(
             headers.append(
                 (b"content-disposition", content_disposition.encode()))
 
-        if check_modified and _is_not_modified(scope['headers'], headers):
+        if check_modified and _is_not_modified(request.scope['headers'], headers):
             return HttpResponse(
                 response_code.NOT_MODIFIED,
                 [
@@ -151,7 +152,7 @@ async def file_response(
         return HttpResponse(
             status,
             headers,
-            None if scope['method'] == 'HEAD' else file_writer(path)
+            None if request.scope['method'] == 'HEAD' else file_writer(path)
         )
 
     except FileNotFoundError:
