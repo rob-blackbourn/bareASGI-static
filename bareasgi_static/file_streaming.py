@@ -120,6 +120,8 @@ async def file_response(
 
         if not headers:
             headers = []
+        else:
+            headers = headers.copy()
 
         if content_type is None:
             content_type = guess_type(filename or path)[0] or "text/plain"

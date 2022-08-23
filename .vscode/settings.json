@@ -15,6 +15,7 @@
         "ISREG",
         "mkdocs",
         "mktime",
+        "parsedate",
         "struct"
     ]
 }

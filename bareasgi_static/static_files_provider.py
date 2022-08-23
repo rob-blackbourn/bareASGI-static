@@ -2,7 +2,7 @@
 
 import os
 import stat
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from aiofiles.os import stat as aio_stat
 from bareasgi import Application, HttpRequest, HttpResponse
@@ -20,7 +20,8 @@ class StaticFilesProvider:
             *,
             path_variable: Optional[str] = None,
             check_source_folder: bool = True,
-            index_filename: Optional[str] = None
+            index_filename: Optional[str] = None,
+            headers: Optional[List[Tuple[bytes, bytes]]] = None,
     ) -> None:
         """A static file provider.
 
@@ -32,6 +33,7 @@ class StaticFilesProvider:
                 folder exists. Defaults to True.
             index_filename (Optional[str], optional): An optional index file
                 name. Defaults to None.
+            headers (Optional[Headers], optional): The headers. Defaults to None.
 
         Raises:
             RuntimeError: If the source folder does not exist.
@@ -42,6 +44,7 @@ class StaticFilesProvider:
         self.path_variable = path_variable
         self.config_checked = False
         self.index_filename = index_filename
+        self.headers = headers
 
     async def __call__(self, request: HttpRequest) -> HttpResponse:
         if request.scope["method"] not in ("GET", "HEAD"):
@@ -82,7 +85,13 @@ class StaticFilesProvider:
             if not stat.S_ISREG(mode):
                 raise FileNotFoundError()
 
-            return await file_response(request, 200, rooted_path, check_modified=True)
+            return await file_response(
+                request,
+                200,
+                rooted_path,
+                check_modified=True,
+                headers=self.headers
+            )
         except FileNotFoundError:
             return HttpResponse(
                 response_code.NOT_FOUND,
@@ -97,7 +106,8 @@ def add_static_file_provider(
         *,
         mount_point: str = '/',
         check_source_folder: bool = True,
-        index_filename: Optional[str] = None
+        index_filename: Optional[str] = None,
+        headers: Optional[List[Tuple[bytes, bytes]]] = None
 ) -> None:
     """Add static file support.
 
@@ -110,6 +120,7 @@ def add_static_file_provider(
             exists. Defaults to True.
         index_filename (Optional[str], optional): An optional index file name.
             Defaults to None.
+        headers (Optional[Headers], optional): The headers. Defaults to None.
 
     Raises:
         RuntimeError: If the mount point doesn't start with '/'.
@@ -124,7 +135,8 @@ def add_static_file_provider(
         source_folder,
         path_variable=None if mount_point == '/' else path_variable,
         check_source_folder=check_source_folder,
-        index_filename=index_filename
+        index_filename=index_filename,
+        headers=headers
     )
     path = f'{mount_point}{{{path_variable}:path}}'
     app.http_router.add({'GET'}, path, static_file_provider)
