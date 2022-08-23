@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bareASGI-static"
-version = "4.0.1"
+version = "4.1.0"
 description = "Static file support for bareASGI"
 authors = ["Rob Blackbourn <rob.blackbourn@gmail.com>"]
 license = "Apache-2.0"
